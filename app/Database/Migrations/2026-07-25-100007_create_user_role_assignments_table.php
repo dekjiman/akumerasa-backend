@@ -8,6 +8,10 @@ class CreateUserRoleAssignmentsTable extends Migration
 {
     public function up()
     {
+        if ($this->db->tableExists('user_role_assignments')) {
+            return;
+        }
+
         $this->forge->addField([
             'id'            => ['type' => 'INT', 'constraint' => 11, 'unsigned' => true, 'auto_increment' => true],
             'user_id'       => ['type' => 'INT', 'constraint' => 11, 'unsigned' => true],

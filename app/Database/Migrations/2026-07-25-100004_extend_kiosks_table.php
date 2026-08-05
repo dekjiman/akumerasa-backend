@@ -25,9 +25,12 @@ class ExtendKiosksTable extends Migration
             'activated_at'               => ['type' => 'DATETIME', 'null' => true, 'after' => 'content_manifest_version'],
             'deactivated_at'             => ['type' => 'DATETIME', 'null' => true, 'after' => 'activated_at'],
         ];
-        $this->forge->addColumn('kiosks', $fields);
-        $this->forge->addKey('device_fingerprint');
-        $this->forge->addKey('platform');
+
+        foreach ($fields as $name => $definition) {
+            if (!$this->db->fieldExists($name, 'kiosks')) {
+                $this->forge->addColumn('kiosks', [$name => $definition]);
+            }
+        }
     }
 
     public function down()

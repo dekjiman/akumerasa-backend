@@ -8,6 +8,10 @@ class CreateDeviceActivationsTable extends Migration
 {
     public function up()
     {
+        if ($this->db->tableExists('device_activations')) {
+            return;
+        }
+
         $this->forge->addField([
             'id'                     => ['type' => 'INT', 'constraint' => 11, 'unsigned' => true, 'auto_increment' => true],
             'kiosk_id'               => ['type' => 'INT', 'constraint' => 11, 'unsigned' => true],

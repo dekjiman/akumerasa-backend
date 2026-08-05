@@ -27,9 +27,12 @@ class ExtendLocationsTable extends Migration
             'reviewed_at'       => ['type' => 'DATETIME', 'null' => true, 'after' => 'submitted_at'],
             'reviewed_by'       => ['type' => 'INT', 'constraint' => 11, 'unsigned' => true, 'null' => true, 'after' => 'reviewed_at'],
         ];
-        $this->forge->addColumn('locations', $fields);
-        $this->forge->addKey('type');
-        $this->forge->addKey('submitted_at');
+
+        foreach ($fields as $name => $definition) {
+            if (!$this->db->fieldExists($name, 'locations')) {
+                $this->forge->addColumn('locations', [$name => $definition]);
+            }
+        }
     }
 
     public function down()

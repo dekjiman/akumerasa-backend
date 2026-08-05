@@ -8,6 +8,10 @@ class CreateKioskRequestsTable extends Migration
 {
     public function up()
     {
+        if ($this->db->tableExists('kiosk_requests')) {
+            return;
+        }
+
         $this->forge->addField([
             'id'                => ['type' => 'INT', 'constraint' => 11, 'unsigned' => true, 'auto_increment' => true],
             'request_number'    => ['type' => 'VARCHAR', 'constraint' => 30, 'unique' => true],

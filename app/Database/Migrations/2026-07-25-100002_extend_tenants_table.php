@@ -22,10 +22,12 @@ class ExtendTenantsTable extends Migration
             'reviewed_at'          => ['type' => 'DATETIME', 'null' => true, 'after' => 'submitted_at'],
             'reviewed_by'          => ['type' => 'INT', 'constraint' => 11, 'unsigned' => true, 'null' => true, 'after' => 'reviewed_at'],
         ];
-        $this->forge->addColumn('tenants', $fields);
-        $this->forge->addKey('verification_status');
-        $this->forge->addKey('owner_user_id');
-        $this->forge->addKey('type');
+
+        foreach ($fields as $name => $definition) {
+            if (!$this->db->fieldExists($name, 'tenants')) {
+                $this->forge->addColumn('tenants', [$name => $definition]);
+            }
+        }
     }
 
     public function down()
