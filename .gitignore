@@ -1,0 +1,10 @@
+/vendor/
+.env
+writable/logs/
+writable/cache/
+writable/session/
+writable/uploads/
+.idea/
+.vscode/
+*.swp
+*.swo

@@ -1,0 +1,333 @@
+{
+  "info": {
+    "name": "Refleksi Payment Gateway",
+    "description": "API testing collection for Xendit payment integration",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8080" },
+    { "key": "admin_token", "value": "" },
+    { "key": "reference", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Admin Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.token) {",
+                  "    pm.collectionVariables.set('admin_token', jsonData.data.token);",
+                  "    console.log('Token saved');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@refleksi.com\",\n  \"password\": \"your_password\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Public - Create Donation",
+      "item": [
+        {
+          "name": "Create Donation QRIS",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.donation && jsonData.data.donation.reference) {",
+                  "    pm.collectionVariables.set('reference', jsonData.data.donation.reference);",
+                  "    pm.test('Status is 201', function() { pm.response.to.have.status(201); });",
+                  "    pm.test('Reference saved', function() { pm.expect(pm.collectionVariables.get('reference')).to.not.be.empty; });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/public/donasi",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 50000,\n  \"payment_method\": \"qris\",\n  \"session_id\": 1,\n  \"tenant_id\": 1,\n  \"donor_name\": \"Ahmad Fauzi\",\n  \"campaign_id\": 1,\n  \"note\": \"Donasi testing\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Create Donation VA BRI",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/public/donasi",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 100000,\n  \"payment_method\": \"va_bri\",\n  \"tenant_id\": 2,\n  \"donor_name\": \"Siti Rahma\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Create Donation VA BCA",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/public/donasi",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 250000,\n  \"payment_method\": \"va_bca\",\n  \"tenant_id\": 1,\n  \"donor_name\": \"Budi Santoso\",\n  \"campaign_id\": 3\n}"
+            }
+          }
+        },
+        {
+          "name": "Validation - Amount Zero",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/public/donasi",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 0,\n  \"payment_method\": \"qris\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Validation - Invalid Method",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/public/donasi",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 50000,\n  \"payment_method\": \"bitcoin\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Validation - Below Minimum",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/public/donasi",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 500,\n  \"payment_method\": \"qris\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Public - Payment Status",
+      "item": [
+        {
+          "name": "Check Payment Status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function() { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/endpoint/public/payment-status/{{reference}}"
+          }
+        },
+        {
+          "name": "Check Non-Existent",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/endpoint/public/payment-status/DON-00000000-xxxxxxxx"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Donations",
+      "item": [
+        {
+          "name": "List Donations",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/endpoint/admin/donations?page=1&per_page=10",
+              "host": ["{{base_url}}"],
+              "path": ["endpoint", "admin", "donations"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "per_page", "value": "10" }
+              ]
+            },
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ]
+          }
+        },
+        {
+          "name": "List - Filter by Tenant",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/endpoint/admin/donations?tenant_id=1",
+              "host": ["{{base_url}}"],
+              "path": ["endpoint", "admin", "donations"],
+              "query": [{ "key": "tenant_id", "value": "1" }]
+            },
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ]
+          }
+        },
+        {
+          "name": "List - Filter by Status",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/endpoint/admin/donations?status=paid",
+              "host": ["{{base_url}}"],
+              "path": ["endpoint", "admin", "donations"],
+              "query": [{ "key": "status", "value": "paid" }]
+            },
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ]
+          }
+        },
+        {
+          "name": "List - Search",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/endpoint/admin/donations?search=ahmad",
+              "host": ["{{base_url}}"],
+              "path": ["endpoint", "admin", "donations"],
+              "query": [{ "key": "search", "value": "ahmad" }]
+            },
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ]
+          }
+        },
+        {
+          "name": "Get Donation Detail",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/endpoint/admin/donations/1",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ]
+          }
+        },
+        {
+          "name": "Cancel Donation",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/admin/donations/1/cancel",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Webhook Simulation",
+      "item": [
+        {
+          "name": "Webhook - Payment Success",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function() { pm.response.to.have.status(200); });",
+                  "pm.test('Webhook processed', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.include('processed');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/webhook/payment",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-callback-token", "value": "GENERATE_HMAC_FIRST" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"payment.succeeded\",\n  \"data\": {\n    \"id\": \"pr_test\",\n    \"reference_id\": \"DON-20260727-a1b2c3d4\",\n    \"status\": \"SUCCEEDED\",\n    \"amount\": 50000,\n    \"payment_method\": {\n      \"type\": \"QR_CODE\",\n      \"qr_code\": { \"channel_code\": \"QRIS\" }\n    }\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Webhook - Payment Failed",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/webhook/payment",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-callback-token", "value": "GENERATE_HMAC_FIRST" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"payment.failed\",\n  \"data\": {\n    \"id\": \"pr_test\",\n    \"reference_id\": \"DON-20260727-e5f6g7h8\",\n    \"status\": \"FAILED\",\n    \"failure_code\": \"INSUFFICIENT_FUNDS\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Webhook - Invalid Signature",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/webhook/payment",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-callback-token", "value": "wrong_signature_12345" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"payment.succeeded\",\n  \"data\": {\n    \"id\": \"pr_test\",\n    \"reference_id\": \"DON-xxx\",\n    \"status\": \"SUCCEEDED\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Webhook - Invalid JSON",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/webhook/payment",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-callback-token", "value": "test" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "this is not json"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
