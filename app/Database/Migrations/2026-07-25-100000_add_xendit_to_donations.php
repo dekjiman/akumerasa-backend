@@ -40,7 +40,6 @@ class AddXenditToDonations extends Migration
                 'updated_at'    => ['type' => 'DATETIME'],
             ]);
             $this->forge->addKey('id', true);
-            $this->forge->addKey('external_id');
             $this->forge->addKey('tenant_id');
             $this->forge->createTable('xendit_static_qrs');
         }

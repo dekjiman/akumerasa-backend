@@ -24,7 +24,6 @@ class CreateDonationTables extends Migration
         ]);
         $this->forge->addKey('id', true);
         $this->forge->addKey('session_id');
-        $this->forge->addKey('reference');
         $this->forge->addKey('status');
         $this->forge->createTable('donations');
 

@@ -1,0 +1,14 @@
+# Exclude documentation and dev-only files from Docker build image
+Docs/
+.git/
+.gitignore
+.env
+.idea/
+.vscode/
+tests/
+*.md
+
+# Exclude temporary & standalone test scripts
+_check.php
+test_*.php
+fix_*.php

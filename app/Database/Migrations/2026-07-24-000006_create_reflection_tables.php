@@ -45,7 +45,6 @@ class CreateReflectionTables extends Migration
         ]);
         $this->forge->addKey('id', true);
         $this->forge->addKey('session_id');
-        $this->forge->addKey('token');
         $this->forge->createTable('reflection_results');
         $this->forge->reset();
 

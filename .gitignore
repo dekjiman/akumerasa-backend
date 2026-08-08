@@ -1,5 +1,6 @@
 /vendor/
 .env
+writable/
 writable/logs/
 writable/cache/
 writable/session/
