@@ -47,6 +47,34 @@ php spark serve --port 8080
 
 API will be available at `http://localhost:8080/endpoint/`
 
+## 🐳 Production Deployment (Docker Compose)
+
+Aplikasi ini sudah terkonfigurasi menggunakan **Docker Compose** lengkap dengan **MariaDB 11.3** dan **Nginx**.
+
+Saat pertama kali dijalankan di server produksi (`mariadb_data` masih bersih), MariaDB akan **secara otomatis mengimpor seluruh tabel dan isi data awal** dari file `data/refleksi_db.sql` (659 ayat Al-Quran, 310 Hadits, 18 Emosi, Role, Permissions, User Admin, dll).
+
+### Langkah Deploy di Server Prod:
+
+```bash
+# 1. Clone repository
+git clone <repository-url>
+cd akumerasa-backend
+
+# 2. Buat file .env dari template
+cp .env.example .env
+
+# 3. Sesuaikan JWT_SECRET, HASH_KEY, dan DB passwords di .env jika diperlukan
+
+# 4. Jalankan Docker Compose (Build & Start)
+docker compose up --build -d
+
+# 5. Cek status container & logs database
+docker compose ps
+docker compose logs -f db
+```
+
+Aplikasi siap diakses di port `8080` (atau port `WEB_PORT` yang ditentukan di `.env`).
+
 ## Project Structure
 
 ```
@@ -102,6 +130,10 @@ See [API_REFERENCE.md](API_REFERENCE.md) for complete documentation.
 ## Authentication
 
 See [AUTHENTICATION.md](AUTHENTICATION.md) for auth flow details.
+
+## Kiosk App Integration
+
+See [KIOSK_INTEGRATION.md](KIOSK_INTEGRATION.md) for Kiosk App to Backend integration documentation (Lead Submit & Reflection Flow).
 
 ## License
 

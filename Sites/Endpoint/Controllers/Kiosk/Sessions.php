@@ -21,7 +21,7 @@ class Sessions extends ResourceController
 
         $db = \Config\Database::connect();
 
-        $sessionId = $db->table('reflection_sessions')->insert([
+        $db->table('reflection_sessions')->insert([
             'kiosk_id'       => $kioskId,
             'location_id'    => $locationId,
             'tenant_id'      => $tenantId,
@@ -35,6 +35,7 @@ class Sessions extends ResourceController
             'created_at'     => date('Y-m-d H:i:s'),
             'updated_at'     => date('Y-m-d H:i:s'),
         ]);
+        $sessionId = $db->insertID();
 
         $session = $db->table('reflection_sessions')->where('id', $sessionId)->get()->getRow();
 

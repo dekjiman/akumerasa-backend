@@ -40,5 +40,11 @@ EOF
     echo ".env file generated successfully."
 fi
 
+# Auto-install composer dependencies if vendor directory missing
+if [ ! -d /var/www/html/vendor ]; then
+    echo "Installing composer dependencies..."
+    composer install --optimize-autoloader --no-interaction
+fi
+
 # Execute main container command
 exec "$@"

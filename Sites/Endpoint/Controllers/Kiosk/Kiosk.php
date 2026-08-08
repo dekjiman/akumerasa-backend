@@ -108,10 +108,12 @@ class Kiosk extends ResourceController
         });
 
         return $this->respondSuccess([
-            'campaigns' => array_values($eligibleCampaigns),
-            'emotions'  => $db->table('emotions')->where('status', 'active')->orderBy('sort_order', 'ASC')->get()->getResult(),
-            'contexts'  => $db->table('contexts')->orderBy('sort_order', 'ASC')->get()->getResult(),
-            'themes'    => $db->table('reflection_templates')->get()->getResult(),
+            'campaigns'    => array_values($eligibleCampaigns),
+            'emotions'     => $db->table('emotions')->where('status', 'active')->orderBy('sort_order', 'ASC')->get()->getResult(),
+            'contexts'     => $db->table('contexts')->orderBy('sort_order', 'ASC')->get()->getResult(),
+            'themes'       => $db->table('reflection_templates')->get()->getResult(),
+            'quran_verses' => $db->table('quran_verses')->where('status', 'approved')->get()->getResult(),
+            'hadiths'      => $db->table('hadiths')->where('status', 'approved')->get()->getResult(),
         ]);
     }
     /**

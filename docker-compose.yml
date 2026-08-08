@@ -47,10 +47,9 @@ services:
 
   # MariaDB Database
   db:
-    image: mariadb:10.9
+    image: mariadb:11.3
     container_name: akumerasa_db
     restart: unless-stopped
-    command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS:-root_password}
       MYSQL_DATABASE: ${DB_NAME:-refleksi_db}
@@ -60,11 +59,13 @@ services:
       - "${DB_PORT:-3306}:3306"
     volumes:
       - mariadb_data:/var/lib/mysql
+      - ./data:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASS:-root_password}"]
-      interval: 5s
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 15
+      start_period: 30s
 
 volumes:
   mariadb_data:

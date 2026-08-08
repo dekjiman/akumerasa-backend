@@ -1,12 +1,13 @@
 {
   "info": {
-    "name": "Refleksi Payment Gateway",
-    "description": "API testing collection for Xendit payment integration",
+    "name": "Akumerasa Backend API Collection",
+    "description": "Complete Postman collection for Akumerasa Backend API endpoints (Auth, Admin Management, Kiosk Devices, Public, Webhook)",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     { "key": "base_url", "value": "http://localhost:8080" },
     { "key": "admin_token", "value": "" },
+    { "key": "device_token", "value": "" },
     { "key": "reference", "value": "" }
   ],
   "item": [
@@ -14,7 +15,7 @@
       "name": "Auth",
       "item": [
         {
-          "name": "Admin Login",
+          "name": "Login Admin",
           "event": [
             {
               "listen": "test",
@@ -23,7 +24,7 @@
                   "var jsonData = pm.response.json();",
                   "if (jsonData.data && jsonData.data.token) {",
                   "    pm.collectionVariables.set('admin_token', jsonData.data.token);",
-                  "    console.log('Token saved');",
+                  "    console.log('Admin Token saved');",
                   "}"
                 ]
               }
@@ -35,27 +36,81 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@refleksi.com\",\n  \"password\": \"your_password\"\n}"
+              "raw": "{\n  \"email\": \"admin@refleksidiri.id\",\n  \"password\": \"password123\"\n}"
             }
           }
-        }
-      ]
-    },
-    {
-      "name": "Public - Create Donation",
-      "item": [
+        },
         {
-          "name": "Create Donation QRIS",
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/auth/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Pengurus Masjid Baru\",\n  \"email\": \"pengurus@masjid.com\",\n  \"password\": \"password123\",\n  \"phone\": \"081234567890\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Verify Email",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/auth/verify-email",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"sample_verification_token_here\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/auth/forgot-password",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@refleksidiri.id\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/auth/reset-password",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"sample_reset_token\",\n  \"password\": \"newpassword123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Resend Verification",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/auth/resend-verification",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"pengurus@masjid.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Device Activate",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
                   "var jsonData = pm.response.json();",
-                  "if (jsonData.data && jsonData.data.donation && jsonData.data.donation.reference) {",
-                  "    pm.collectionVariables.set('reference', jsonData.data.donation.reference);",
-                  "    pm.test('Status is 201', function() { pm.response.to.have.status(201); });",
-                  "    pm.test('Reference saved', function() { pm.expect(pm.collectionVariables.get('reference')).to.not.be.empty; });",
+                  "if (jsonData.data && jsonData.data.device_token) {",
+                  "    pm.collectionVariables.set('device_token', jsonData.data.device_token);",
+                  "    console.log('Device Token saved');",
                   "}"
                 ]
               }
@@ -63,101 +118,409 @@
           ],
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/endpoint/public/donasi",
+            "url": "{{base_url}}/endpoint/auth/device/activate",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"amount\": 50000,\n  \"payment_method\": \"qris\",\n  \"session_id\": 1,\n  \"tenant_id\": 1,\n  \"donor_name\": \"Ahmad Fauzi\",\n  \"campaign_id\": 1,\n  \"note\": \"Donasi testing\"\n}"
+              "raw": "{\n  \"activation_code\": \"123456\",\n  \"device_fingerprint\": \"fp_sample_kiosk_001\",\n  \"platform\": \"android\",\n  \"app_version\": \"1.0.0\",\n  \"device_name\": \"Kiosk Front Hall\"\n}"
             }
           }
         },
         {
-          "name": "Create Donation VA BRI",
+          "name": "Device Login",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/endpoint/public/donasi",
+            "url": "{{base_url}}/endpoint/auth/device/login",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"amount\": 100000,\n  \"payment_method\": \"va_bri\",\n  \"tenant_id\": 2,\n  \"donor_name\": \"Siti Rahma\"\n}"
+              "raw": "{\n  \"kiosk_code\": \"KSK-001\",\n  \"device_secret\": \"sample_secret\"\n}"
             }
           }
         },
         {
-          "name": "Create Donation VA BCA",
+          "name": "Refresh Token",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/endpoint/public/donasi",
+            "url": "{{base_url}}/endpoint/auth/refresh",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"amount\": 250000,\n  \"payment_method\": \"va_bca\",\n  \"tenant_id\": 1,\n  \"donor_name\": \"Budi Santoso\",\n  \"campaign_id\": 3\n}"
+              "raw": "{\n  \"refresh_token\": \"sample_refresh_token\"\n}"
             }
           }
         },
         {
-          "name": "Validation - Amount Zero",
+          "name": "Get Profile (Me)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/endpoint/auth/me",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ]
+          }
+        },
+        {
+          "name": "Get My Permissions",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/endpoint/auth/my-permissions",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ]
+          }
+        },
+        {
+          "name": "Logout",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/endpoint/public/donasi",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/endpoint/auth/logout",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Tenants",
+      "item": [
+        {
+          "name": "List Tenants",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/endpoint/admin/tenants?page=1&per_page=10",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+          }
+        },
+        {
+          "name": "Create Tenant",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/admin/tenants",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"amount\": 0,\n  \"payment_method\": \"qris\"\n}"
+              "raw": "{\n  \"name\": \"Masjid Al-Akbar\",\n  \"type\": \"masjid\",\n  \"contact_name\": \"H. Ahmad\",\n  \"contact_email\": \"ahmad@alakbar.or.id\",\n  \"phone\": \"081299887766\",\n  \"address\": \"Jl. Masjid Agung No. 1\"\n}"
             }
           }
         },
         {
-          "name": "Validation - Invalid Method",
+          "name": "Get Tenant Detail",
           "request": {
-            "method": "POST",
-            "url": "{{base_url}}/endpoint/public/donasi",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "method": "GET",
+            "url": "{{base_url}}/endpoint/admin/tenants/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+          }
+        },
+        {
+          "name": "Update Tenant",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/endpoint/admin/tenants/1",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"amount\": 50000,\n  \"payment_method\": \"bitcoin\"\n}"
+              "raw": "{\n  \"name\": \"Masjid Al-Akbar Updated\",\n  \"bio\": \"Masjid Agung Wilayah\"\n}"
             }
           }
         },
         {
-          "name": "Validation - Below Minimum",
+          "name": "Delete Tenant",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/endpoint/admin/tenants/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+          }
+        },
+        {
+          "name": "Submit Tenant Verification",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/endpoint/public/donasi",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/endpoint/admin/tenants/1/submit",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+          }
+        },
+        {
+          "name": "Approve Tenant",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/admin/tenants/1/approve",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+          }
+        },
+        {
+          "name": "Request Revision Tenant",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/admin/tenants/1/request-revision",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"amount\": 500,\n  \"payment_method\": \"qris\"\n}"
+              "raw": "{\n  \"notes\": \"Mohon lengkapi alamat email resmi yayasan.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Reject Tenant",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/admin/tenants/1/reject",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Dokumen tidak valid.\"\n}"
             }
           }
         }
       ]
     },
     {
-      "name": "Public - Payment Status",
+      "name": "Admin - Locations",
       "item": [
         {
-          "name": "Check Payment Status",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 200', function() { pm.response.to.have.status(200); });"
-                ]
-              }
-            }
-          ],
+          "name": "List Locations",
           "request": {
             "method": "GET",
-            "url": "{{base_url}}/endpoint/public/payment-status/{{reference}}"
+            "url": "{{base_url}}/endpoint/admin/locations?page=1&per_page=10",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
           }
         },
         {
-          "name": "Check Non-Existent",
+          "name": "Create Location",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/admin/locations",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenant_id\": 1,\n  \"name\": \"Lobi Utama\",\n  \"type\": \"masjid\",\n  \"address\": \"Lantai 1\",\n  \"city\": \"Jakarta\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Location Detail",
           "request": {
             "method": "GET",
-            "url": "{{base_url}}/endpoint/public/payment-status/DON-00000000-xxxxxxxx"
+            "url": "{{base_url}}/endpoint/admin/locations/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+          }
+        },
+        {
+          "name": "Update Location",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/endpoint/admin/locations/1",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Lobi Pintu Timur\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Location",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/endpoint/admin/locations/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Kiosks",
+      "item": [
+        {
+          "name": "List Kiosks",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/endpoint/admin/kiosks",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+          }
+        },
+        {
+          "name": "Create Kiosk",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/admin/kiosks",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kiosk_code\": \"KSK-001\",\n  \"location_id\": 1,\n  \"tenant_id\": 1,\n  \"name\": \"Kiosk Hall A\",\n  \"printer_type\": \"thermal_80mm\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Kiosk Detail",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/endpoint/admin/kiosks/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+          }
+        },
+        {
+          "name": "Update Kiosk",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/endpoint/admin/kiosks/1",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Kiosk Main Hall Renamed\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Kiosk",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/endpoint/admin/kiosks/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+          }
+        },
+        {
+          "name": "Get Kiosk Heartbeats",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/endpoint/admin/kiosks/1/heartbeats",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+          }
+        },
+        {
+          "name": "Generate Activation Code",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/admin/kiosks/1/activation-codes",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+          }
+        },
+        {
+          "name": "Get Activation Code History",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/endpoint/admin/kiosks/1/activation-codes",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Users & Roles",
+      "item": [
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/endpoint/admin/users",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/admin/users",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Operator Kiosk\",\n  \"email\": \"operator@refleksidiri.id\",\n  \"password\": \"password123\",\n  \"role\": \"kiosk_operator\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List Roles",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/endpoint/admin/roles",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+          }
+        },
+        {
+          "name": "Get Role Permissions",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/endpoint/admin/roles/1/permissions",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Content (Emotions, Contexts, Quran, Hadith)",
+      "item": [
+        {
+          "name": "List Emotions",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/endpoint/admin/content/emotions",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+          }
+        },
+        {
+          "name": "Create Emotion",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/admin/content/emotions",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Optimis\",\n  \"icon\": \"smile\",\n  \"category\": \"positif\",\n  \"sort_order\": 10\n}"
+            }
+          }
+        },
+        {
+          "name": "List Contexts",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/endpoint/admin/content/contexts",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+          }
+        },
+        {
+          "name": "List Quran Verses",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/endpoint/admin/content/quran",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+          }
+        },
+        {
+          "name": "List Hadiths",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/endpoint/admin/content/hadith",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
           }
         }
       ]
@@ -169,83 +532,172 @@
           "name": "List Donations",
           "request": {
             "method": "GET",
-            "url": {
-              "raw": "{{base_url}}/endpoint/admin/donations?page=1&per_page=10",
-              "host": ["{{base_url}}"],
-              "path": ["endpoint", "admin", "donations"],
-              "query": [
-                { "key": "page", "value": "1" },
-                { "key": "per_page", "value": "10" }
-              ]
-            },
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
-            ]
-          }
-        },
-        {
-          "name": "List - Filter by Tenant",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{base_url}}/endpoint/admin/donations?tenant_id=1",
-              "host": ["{{base_url}}"],
-              "path": ["endpoint", "admin", "donations"],
-              "query": [{ "key": "tenant_id", "value": "1" }]
-            },
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
-            ]
-          }
-        },
-        {
-          "name": "List - Filter by Status",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{base_url}}/endpoint/admin/donations?status=paid",
-              "host": ["{{base_url}}"],
-              "path": ["endpoint", "admin", "donations"],
-              "query": [{ "key": "status", "value": "paid" }]
-            },
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
-            ]
-          }
-        },
-        {
-          "name": "List - Search",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{base_url}}/endpoint/admin/donations?search=ahmad",
-              "host": ["{{base_url}}"],
-              "path": ["endpoint", "admin", "donations"],
-              "query": [{ "key": "search", "value": "ahmad" }]
-            },
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
-            ]
+            "url": "{{base_url}}/endpoint/admin/donations?page=1&per_page=10",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
           }
         },
         {
           "name": "Get Donation Detail",
           "request": {
             "method": "GET",
-            "url": "{{base_url}}/endpoint/admin/donations/1",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
-            ]
+            "url": "{{base_url}}/endpoint/admin/donations/12",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
           }
         },
         {
           "name": "Cancel Donation",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/endpoint/admin/donations/1/cancel",
+            "url": "{{base_url}}/endpoint/admin/donations/12/cancel",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Reports & Audit Logs",
+      "item": [
+        {
+          "name": "Reports Overview",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/endpoint/admin/reports/overview",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+          }
+        },
+        {
+          "name": "Reports Sessions",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/endpoint/admin/reports/sessions",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+          }
+        },
+        {
+          "name": "Reports Donations",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/endpoint/admin/reports/donations",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+          }
+        },
+        {
+          "name": "List Audit Logs",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/endpoint/admin/audit",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Kiosk Device",
+      "item": [
+        {
+          "name": "Send Heartbeat",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/kiosk/heartbeat",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
-            ]
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{device_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"storage_used\": 45,\n  \"network_status\": \"online\",\n  \"printer_state\": \"paper_ok\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Kiosk Config",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/endpoint/kiosk/config",
+            "header": [{ "key": "Authorization", "value": "Bearer {{device_token}}" }]
+          }
+        },
+        {
+          "name": "Get Manifest",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/endpoint/kiosk/manifest",
+            "header": [{ "key": "Authorization", "value": "Bearer {{device_token}}" }]
+          }
+        },
+        {
+          "name": "Get Static QR",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/endpoint/kiosk/static-qr",
+            "header": [{ "key": "Authorization", "value": "Bearer {{device_token}}" }]
+          }
+        },
+        {
+          "name": "Create Kiosk Session",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/kiosk/sessions",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{device_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"visitor_name\": \"Hamba Allah\",\n  \"emotion_id\": 19,\n  \"context_id\": 1,\n  \"story\": \"Memohon kelapangan rezeki dan kesehatan keluarga\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Complete Kiosk Session",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/kiosk/sessions/1/complete",
+            "header": [{ "key": "Authorization", "value": "Bearer {{device_token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Public - Donations & Results",
+      "item": [
+        {
+          "name": "Create Donation (Public)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.donation && jsonData.data.donation.reference) {",
+                  "    pm.collectionVariables.set('reference', jsonData.data.donation.reference);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/endpoint/public/donasi",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 50000,\n  \"payment_method\": \"qris\",\n  \"session_id\": 1,\n  \"tenant_id\": 1,\n  \"donor_name\": \"Ahmad Fauzi\",\n  \"campaign_id\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Check Payment Status",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/endpoint/public/payment-status/{{reference}}"
+          }
+        },
+        {
+          "name": "Get Public QR Result Page",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/t/sample_token_here"
           }
         }
       ]
@@ -254,76 +706,17 @@
       "name": "Webhook Simulation",
       "item": [
         {
-          "name": "Webhook - Payment Success",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 200', function() { pm.response.to.have.status(200); });",
-                  "pm.test('Webhook processed', function() {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.message).to.include('processed');",
-                  "});"
-                ]
-              }
-            }
-          ],
+          "name": "Xendit Payment Webhook (Success)",
           "request": {
             "method": "POST",
             "url": "{{base_url}}/endpoint/webhook/payment",
             "header": [
               { "key": "Content-Type", "value": "application/json" },
-              { "key": "x-callback-token", "value": "GENERATE_HMAC_FIRST" }
+              { "key": "x-callback-token", "value": "xnd_webhook_token_dev" }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"event\": \"payment.succeeded\",\n  \"data\": {\n    \"id\": \"pr_test\",\n    \"reference_id\": \"DON-20260727-a1b2c3d4\",\n    \"status\": \"SUCCEEDED\",\n    \"amount\": 50000,\n    \"payment_method\": {\n      \"type\": \"QR_CODE\",\n      \"qr_code\": { \"channel_code\": \"QRIS\" }\n    }\n  }\n}"
-            }
-          }
-        },
-        {
-          "name": "Webhook - Payment Failed",
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/endpoint/webhook/payment",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "x-callback-token", "value": "GENERATE_HMAC_FIRST" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"event\": \"payment.failed\",\n  \"data\": {\n    \"id\": \"pr_test\",\n    \"reference_id\": \"DON-20260727-e5f6g7h8\",\n    \"status\": \"FAILED\",\n    \"failure_code\": \"INSUFFICIENT_FUNDS\"\n  }\n}"
-            }
-          }
-        },
-        {
-          "name": "Webhook - Invalid Signature",
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/endpoint/webhook/payment",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "x-callback-token", "value": "wrong_signature_12345" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"event\": \"payment.succeeded\",\n  \"data\": {\n    \"id\": \"pr_test\",\n    \"reference_id\": \"DON-xxx\",\n    \"status\": \"SUCCEEDED\"\n  }\n}"
-            }
-          }
-        },
-        {
-          "name": "Webhook - Invalid JSON",
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/endpoint/webhook/payment",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "x-callback-token", "value": "test" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "this is not json"
+              "raw": "{\n  \"event\": \"payment.succeeded\",\n  \"data\": {\n    \"id\": \"pr_test_12345\",\n    \"reference_id\": \"DON-20260729-e08f1e50\",\n    \"status\": \"SUCCEEDED\",\n    \"amount\": 5000,\n    \"payment_method\": {\n      \"type\": \"QR_CODE\",\n      \"qr_code\": { \"channel_code\": \"QRIS\" }\n    }\n  }\n}"
             }
           }
         }

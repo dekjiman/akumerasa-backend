@@ -15,6 +15,10 @@ class Cors extends BaseConfig
             'https://localhost',
             'http://localhost',
             'capacitor://localhost',
+            // Kiosk LAN dev (tablet on same network)
+            'http://192.168.1.16:3002',
+            // Electron renderer (file://) sends Origin as the string "null"
+            'null',
         ],
 
         'allowedOriginsPatterns' => [],
