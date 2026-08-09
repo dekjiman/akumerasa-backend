@@ -76,6 +76,8 @@ class Sessions extends ResourceController
         if (isset($json['context_id'])) $updateData['context_id'] = $json['context_id'];
         if (isset($json['cause_id'])) $updateData['cause_id'] = $json['cause_id'];
         if (isset($json['story'])) $updateData['story'] = $json['story'];
+        if (isset($json['visitor_name'])) $updateData['visitor_name'] = $json['visitor_name'];
+        if (isset($json['visitor_email'])) $updateData['visitor_email'] = $json['visitor_email'];
         if (isset($json['status'])) $updateData['status'] = $json['status'];
 
         $db->table('reflection_sessions')->where('id', $id)->update($updateData);
