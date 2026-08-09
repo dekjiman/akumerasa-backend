@@ -8,8 +8,6 @@ services:
       dockerfile: Dockerfile
     container_name: akumerasa_app
     restart: unless-stopped
-    env_file:
-      - .env
     volumes:
       - .:/var/www/html
     environment:
