@@ -26,7 +26,7 @@ app.baseURL = '${APP_BASE_URL:-http://localhost:8080/}'
 database.default.hostname = ${DB_HOST:-db}
 database.default.database = ${DB_NAME:-refleksi_db}
 database.default.username = ${DB_USER:-refleksi_user}
-database.default.password = ${DB_PASS:-refleksi_password}
+database.default.password = ${DB_PASS:-refleksipass_2026#}
 database.default.DBDriver = MySQLi
 database.default.port = ${DB_PORT:-3306}
 

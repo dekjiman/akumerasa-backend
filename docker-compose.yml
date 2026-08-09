@@ -16,12 +16,12 @@ services:
       DB_HOST: ${DB_HOST:-db}
       DB_NAME: ${DB_NAME:-refleksi_db}
       DB_USER: ${DB_USER:-refleksi_user}
-      DB_PASS: ${DB_PASS:-refleksi_password}
+      DB_PASS: ${DB_PASS:-refleksipass_2026#}
       DB_PORT: ${DB_PORT:-3306}
       database.default.hostname: ${DB_HOST:-db}
       database.default.database: ${DB_NAME:-refleksi_db}
       database.default.username: ${DB_USER:-refleksi_user}
-      database.default.password: ${DB_PASS:-refleksi_password}
+      database.default.password: ${DB_PASS:-refleksipass_2026#}
       database.default.DBDriver: MySQLi
       database.default.port: ${DB_PORT:-3306}
       HASH_KEY: ${HASH_KEY:-J5yGAlg9l9qDqRC4YKjrULtZjn4zLzWCY38Eh9aaFxG}
