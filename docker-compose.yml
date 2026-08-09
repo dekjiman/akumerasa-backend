@@ -48,10 +48,10 @@ services:
     container_name: akumerasa_db
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS:-root_password}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS:-rootpass_2026#}
       MYSQL_DATABASE: ${DB_NAME:-refleksi_db}
       MYSQL_USER: ${DB_USER:-refleksi_user}
-      MYSQL_PASSWORD: ${DB_PASS:-refleksi_password}
+      MYSQL_PASSWORD: ${DB_PASS:-refleksipass_2026#}
     volumes:
       - mariadb_data:/var/lib/mysql
       - ./data:/docker-entrypoint-initdb.d:ro
